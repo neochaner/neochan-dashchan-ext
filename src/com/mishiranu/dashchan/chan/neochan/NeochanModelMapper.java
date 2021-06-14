@@ -10,6 +10,7 @@ import org.json.JSONObject;
 
 import android.net.Uri;
 
+import chan.content.model.Attachment;
 import chan.content.model.EmbeddedAttachment;
 import chan.content.model.FileAttachment;
 import chan.content.model.Icon;
@@ -104,36 +105,37 @@ public class NeochanModelMapper {
 			});
 			post.setComment(com);
 		}
+		ArrayList<Attachment> attachments = null;
 		String embed = StringUtils.nullIfEmpty(CommonUtils.optJsonString(jsonObject, "embed"));
-		if (embed != null) {
-			EmbeddedAttachment attachment = EmbeddedAttachment.obtain(embed);
-			if (attachment != null) {
-				post.setAttachments(attachment);
+		try {
+			Attachment attachment = createFileAttachment(jsonObject, locator, boardName, time);
+			attachments = new ArrayList<>();
+			if (attachment != null){
+				attachments.add(attachment);
 			}
-		} else {
-			try {
-				ArrayList<FileAttachment> attachments = new ArrayList<>();
-				FileAttachment attachment = createFileAttachment(jsonObject, locator, boardName, time);
-				if (attachment != null) {
-					attachments.add(attachment);
-				}
-				JSONArray filesArray = jsonObject.optJSONArray("extra_files");
-				if (filesArray != null) {
-					for (int i = 0; i < filesArray.length(); i++) {
-						JSONObject fileObject = filesArray.getJSONObject(i);
-						attachment = createFileAttachment(fileObject, locator, boardName, time);
-						if (attachment != null) {
-							attachments.add(attachment);
-						}
+			JSONArray filesArray = jsonObject.optJSONArray("extra_files");
+			if (filesArray != null){
+				for (int i = 0; i<filesArray.length(); i++){
+					JSONObject fileObject = filesArray.getJSONObject(i);
+					attachment = createFileAttachment(fileObject, locator, boardName, time);
+					if(attachment != null){
+						attachments.add(attachment);
 					}
 				}
-				if (attachments.size() > 0) {
-					post.setAttachments(attachments);
-				}
-			} catch (JSONException e) {
-				// Ignore exception
 			}
+			if (embed != null) {
+				EmbeddedAttachment attachmentEmbd = EmbeddedAttachment.obtain(embed);
+				if (attachmentEmbd != null) {
+					if(attachments == null){
+						attachments = new ArrayList<>();
+					}
+					attachments.add(attachmentEmbd);
+				}
+			}
+		} catch (JSONException e) {
+			// Ignore exception
 		}
+		post.setAttachments(attachments);
 		return post;
 	}
 
