@@ -103,6 +103,10 @@ public class NeochanModelMapper {
 				}
 				return "<a href=\"" + uriString + "\">";
 			});
+			com = com.replace("<p>", "<br>");
+			com = com.replace("</p>", "</br>");
+			com = com.replace("<love>", "<span style=\"color:#c4b8ce\"><del>");
+			com = com.replace("</love>", "</span></del>");
 			post.setComment(com);
 		}
 		ArrayList<Attachment> attachments = null;
