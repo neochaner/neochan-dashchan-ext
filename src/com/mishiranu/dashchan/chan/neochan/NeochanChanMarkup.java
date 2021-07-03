@@ -7,7 +7,7 @@ import chan.content.ChanMarkup;
 import chan.text.CommentEditor;
 
 public class NeochanChanMarkup extends ChanMarkup {
-	private static final int SUPPORTED_TAGS = TAG_BOLD | TAG_ITALIC | TAG_SPOILER | TAG_STRIKE;
+	private static final int SUPPORTED_TAGS = TAG_BOLD | TAG_ITALIC | TAG_SPOILER | TAG_STRIKE | TAG_CODE;
 
 	public NeochanChanMarkup() {
 		addTag("strong", TAG_BOLD);
@@ -15,8 +15,11 @@ public class NeochanChanMarkup extends ChanMarkup {
 		addTag("del", TAG_SPOILER);
 		addTag("blockquote", TAG_QUOTE);
 		addTag("s", TAG_STRIKE);
+		addTag("code", TAG_CODE);
+		addColorable("span");
 
 		addPreformatted("span", "aa", true);
+		addPreformatted("code", true);
 	}
 
 	@Override
@@ -24,17 +27,14 @@ public class NeochanChanMarkup extends ChanMarkup {
 		CommentEditor commentEditor = new CommentEditor();
 		commentEditor.addTag(TAG_BOLD, "[b]", "[/b]", CommentEditor.FLAG_ONE_LINE);
 		commentEditor.addTag(TAG_ITALIC, "[i]", "[/i]", CommentEditor.FLAG_ONE_LINE);
-		commentEditor.addTag(TAG_SPOILER, "%%", "%%", CommentEditor.FLAG_ONE_LINE);
+		commentEditor.addTag(TAG_SPOILER, "[spoiler]", "[/spoiler]", CommentEditor.FLAG_ONE_LINE);
 		commentEditor.addTag(TAG_STRIKE, "[s]", "[/s]", CommentEditor.FLAG_ONE_LINE);
+		commentEditor.addTag(TAG_CODE, "[code]", "[/code]", CommentEditor.FLAG_ONE_LINE);
 		return commentEditor;
 	}
 
 	@Override
 	public boolean isTagSupported(String boardName, int tag) {
-		if (tag == TAG_CODE) {
-			NeochanChanConfiguration configuration = NeochanChanConfiguration.get(this);
-			return configuration.isTagSupported(boardName, tag);
-		}
 		return (SUPPORTED_TAGS & tag) == tag;
 	}
 
